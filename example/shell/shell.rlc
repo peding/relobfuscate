@@ -1,0 +1,8 @@
+# this will write a shellcode to the entry point
+# the shellcode will execute /bin/ls
+# objdump and other tools will still see the original code and not the shellcode
+SIZE32 -overwrite -dirty
+_start: | 31 c0 48 bb d1 9d 96 91 d0 93 8c ff 48 f7 db 53 54 5f 99 52 57 54 5e b0 3b 0f 05 |
+
+# shellcode based on: http://shell-storm.org/shellcode/files/shellcode-806.php
+# modified to call /bin/ls instead of /bin/sh

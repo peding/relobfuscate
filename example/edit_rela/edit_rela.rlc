@@ -1,0 +1,8 @@
+# +24 corresponds to second relocation, which should be the relocation after this one
+SIZE64 optind 4 -overwrite
+.rela.dyn+24: _start
+
+# what the address is doesn't matter, it will be overwritten anyway by the previous relocation
+# write jmp $-2 to _start, causing infinity loop
+SIZE64 optind 4 -overwrite -dirty
+0: | eb fe |

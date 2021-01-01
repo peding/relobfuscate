@@ -1,0 +1,39 @@
+# this will make so variable a will look like "help" in static analyses
+# when executing it, it will remain the same as before, i.e. just "hello"
+# the original bytes gets recovered at runtime by relocation
+# test strings command and compare the original binary and the obfuscated binary
+SIZE8 -dirty
+a+1: "elp\x00"
+
+
+# overwrite flag makes so it will change the values to the specified values at runtime
+# instead of camouflaging to look like it as in the previous relocation
+# strings command will show "world" but at the execution it will be overwritten to "bye bye"
+REL8 -overwrite -dirty
+b: "bye bye\x00"
+
+
+# to use symbols for resolving, specify the name and the expected value of the resolve
+# in this case optind's size is 4 byte (int)
+# SIZE8 means to resolve size of a symbol, and the 8 (bits) means use one relocation per byte to write
+# e.g. SIZE16 will use one relocation per two bytes instead
+SIZE8 optind 4 -overwrite -dirty
+c: "this string is produced by optind resolves\x00"
+
+
+# since the actual resolve writes 4 bytes (or 8 bytes depending on relocation type),
+# the part of the resolved value may corrupt the memory next to where the writes were done
+# the corruption can be prevented by not specifying dirty flag, but if you don't care then you can skip the flag,
+# not a big deal but it will make it look less suspicious in e.g. `readelf -r hello_symbols`
+# dirty flag is only relevant for SIZE8/16/24.../64, and the rest of the relocation type will behave as dirty flag is on
+# simply because they cannot recover the corrupting bytes since they only have control to 1 byte of 4 (or 8) resolving bytes
+ADDR8 -overwrite -dirty
+d: "i don't feel so good"
+# intentionally excluded null byte in the string
+# the print will include the resolved address, and it will change each time due to ASLR
+
+
+# address value can also be directly specified instead of symbol names, but is not demonstrated
+# because the address may differ depending on compiler confs and stuff
+# SIZE8 -dirty
+# 0x201000: "hello\x00"
